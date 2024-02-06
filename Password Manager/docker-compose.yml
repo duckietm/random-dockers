@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  bitwarden:
+    image: vaultwarden/server:latest
+    container_name: passwordmanager
+    restart: unless-stopped
+    ports:
+      - 5050:80
+    volumes:
+      - ./bw-data:/data
+    environment:
+      - DOMAIN=#THE URL OF THE PASSWORD MNGR
+      - LOGIN_RATELIMIT_MAX_BURST=10
+      - LOGIN_RATELIMIT_SECONDS=60
+      - ADMIN_RATELIMIT_MAX_BURST=10
+      - ADMIN_RATELIMIT_SECONDS=60
+      - ADMIN_TOKEN=# Generate a tocken here : https://github.com/dani-garcia/vaultwarden/wiki/Enabling-admin-page#secure-the-admin_token this will enabkle the Admin page ** READ how to ad the $$ to the token ! **
+      - SENDS_ALLOWED=true
+      - EMERGENCY_ACCESS_ALLOWED=true
+      - WEB_VAULT_ENABLED=true
+      - SIGNUPS_ALLOWED=false
+      - SIGNUPS_VERIFY=true
+      - SIGNUPS_VERIFY_RESEND_TIME=3600
+      - SIGNUPS_VERIFY_RESEND_LIMIT=5
+      - SIGNUPS_DOMAINS_WHITELIST=# Allowed domains that can subscribe expl. krews.org
+      - SMTP_HOST=# URL / IP of the mailserver
+      - SMTP_FROM=# From email 
+      - SMTP_FROM_NAME=Vaultwarden
+      - SMTP_SECURITY=off # starttls, force_tls or off
+      - SMTP_PORT=25 # Port
+      - SMTP_USERNAME=# Username to allow sending if required
+      - SMTP_PASSWORD=# Passowrd to allow sending if required
+      - SMTP_AUTH_MECHANISM=
+      pass:
+        ipv4_address: 172.20.5.2
+
+networks:
+  pass:
+    driver: bridge
+    ipam:
+     config:
+       # your chosen docker network here
+       - subnet: 172.20.5.0/24

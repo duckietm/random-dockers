@@ -1,0 +1,24 @@
+version: '3.1'
+
+services:
+  db:
+    container_name: mariadb
+    image: mariadb
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: '### PUT A ROOT PASSWORD IN FOR THE MARIADB USER ###'
+    ports:
+      - 3306:3306
+    networks:
+      mariadb:
+        ipv4_address: 172.20.0.2
+    volumes:
+      - ./init/:/docker-entrypoint-initdb.d
+      - ./data:/var/lib/mysql
+
+networks:
+  mariadb:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.20.0.0/24

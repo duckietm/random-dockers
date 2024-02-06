@@ -1,0 +1,32 @@
+FROM php:8.1-fpm
+
+ARG user=root
+ARG uid=0
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmagickwand-dev \
+    libonig-dev \
+    libpng-dev \
+    libzip-dev \
+    libcurl4-openssl-dev \
+    net-tools \
+    unzip \
+    git --no-install-recommends
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN docker-php-ext-install mysqli pdo_mysql mbstring exif gd curl sockets
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN mkdir -p /home/$user/.composer && \
+chown -R $user:$user /home/$user
+
+RUN apt-get update && apt-get install curl -y
+RUN curl -sL https://deb.nodesource.com/setup_19.x -o /tmp/nodesource_setup.sh
+RUN bash /tmp/nodesource_setup.sh
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    yarn
+
+WORKDIR /var/www
+USER $user

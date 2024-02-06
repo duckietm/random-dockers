@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  gitlab-web:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: '#GIT.HOSTNAME.COM#'
+    container_name: gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://### YOU URL TO GIT###'
+    ports:
+      - '3030:80'
+      - '3443:443'
+    volumes:
+      - './config:/etc/gitlab'
+      - './logs:/var/log/gitlab'
+      - './data:/var/opt/gitlab'
+    networks:
+      - gitlab
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab-web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - './gitlab-runner:/etc/gitlab-runner'
+    networks:
+      gitea:
+        ipv4_address: 172.20.2.2
+
+networks:
+  gitea:
+    driver: bridge
+    ipam:
+     config:
+       # your chosen docker network here
+       - subnet: 172.20.2.0/24

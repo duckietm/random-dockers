@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  main:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+    restart: unless-stopped
+    volumes:
+      - /var/www:/var/www
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/ssl
+      - ./log:/var/log/nginx
+    networks:
+      php:
+        ipv4_address: 172.20.1.2
+
+  php:
+    container_name: php
+    image: bitnami/php-fpm:latest
+    restart: unless-stopped
+    build:
+      context: ./
+      dockerfile: php-dockerfile
+    networks:
+      php:
+        ipv4_address: 172.20.1.3
+    volumes:
+      - /var/www:/var/www
+
+networks:
+  php:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.20.1.0/24
